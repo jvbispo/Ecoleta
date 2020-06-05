@@ -6,12 +6,13 @@ export default class PointsController {
   async show (req:Request,res:Response) {
     const {id} = req.params;
     
-    const point = await knex('points').where('id','id').first()
+    const point = await knex('points').where('id',id).first()
 
     if(!point){
       return res.status(401).json({error: 'point was not found'})
     }
-    const items = await knex('items').join('point_items','item_id','=','point_items.item_id').where('point_items.point_id',id)
+    const items = await knex('items').join('point_items','items.id','=','point_items.item_id')
+    .where('point_items.point_id',id).select('items.title')
     return res.json({point,items})
 
   }
@@ -24,7 +25,7 @@ export default class PointsController {
      
 
     const points = await knex('points')
-    .join('point_items','point.id','=','point_items.point_id')
+    .join('point_items','points.id','=','point_items.point_id')
     .whereIn('point_items.item_id',parsedItems)
     .where('city', String(city))
     .where('uf', String(uf))
